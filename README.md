@@ -24,7 +24,8 @@
 
 <img width="2871" height="1474" alt="image" src="https://github.com/user-attachments/assets/2f64a02e-2892-42cb-9a51-cd6421ae2731" />
 
-<img width="2872" height="1468" alt="image" src="https://github.com/user-attachments/assets/97dbcd05-fdd4-4d52-841d-d188e983dbc2" />
+<img width="2859" height="1451" alt="image" src="https://github.com/user-attachments/assets/6c32ffbc-6b86-4ce3-8dae-37a0a2179811" />
+
 
 
 ## Project Structure
