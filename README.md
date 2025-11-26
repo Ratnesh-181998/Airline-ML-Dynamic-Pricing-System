@@ -1,4 +1,31 @@
 # 🚀 Airline Ticket Shopping System
+<img width="1171" height="1036" alt="image" src="https://github.com/user-attachments/assets/36934c71-959a-4020-961c-74e8f76d4f44" />
+
+# Airline ML Dynamic Pricing System 
+
+<img width="2859" height="1425" alt="image" src="https://github.com/user-attachments/assets/15d38176-d18a-4ce2-a146-0ae6b9470f52" />
+
+<img width="2859" height="1446" alt="image" src="https://github.com/user-attachments/assets/38c1f7c1-2c46-40a5-aab9-e80c3cdd6217" />
+
+<img width="2828" height="1443" alt="image" src="https://github.com/user-attachments/assets/bbf2da54-1173-4035-ae88-59755bfc6013" />
+
+<img width="2848" height="1473" alt="image" src="https://github.com/user-attachments/assets/8fdb8ebe-c070-45d3-9729-aff8af042e54" />
+
+<img width="2851" height="1455" alt="image" src="https://github.com/user-attachments/assets/5e3d95ac-28d9-4533-afaa-96fdee13d18f" />
+
+<img width="2841" height="1450" alt="image" src="https://github.com/user-attachments/assets/a204f0d5-96e1-4fec-b510-162a63773acd" />
+<img width="2852" height="1461" alt="image" src="https://github.com/user-attachments/assets/06db8c6b-16f9-4990-9eb7-114615d87025" />
+
+<img width="2859" height="1414" alt="image" src="https://github.com/user-attachments/assets/b16bf187-b789-4b60-944d-7dd614cf4be7" />
+
+<img width="2857" height="1436" alt="image" src="https://github.com/user-attachments/assets/e856ebda-44ae-4dfd-b7aa-36bcd82bcf10" />
+
+<img width="2861" height="1457" alt="image" src="https://github.com/user-attachments/assets/e4e614a8-9ebd-41c1-9da2-3a5018ff1a46" />
+
+<img width="2871" height="1474" alt="image" src="https://github.com/user-attachments/assets/2f64a02e-2892-42cb-9a51-cd6421ae2731" />
+
+<img width="2872" height="1468" alt="image" src="https://github.com/user-attachments/assets/97dbcd05-fdd4-4d52-841d-d188e983dbc2" />
+
 
 ## Project Structure
 
