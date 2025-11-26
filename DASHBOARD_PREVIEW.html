@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airline Ticket Shopping Dashboard - Preview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f1f5f9;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            background: rgba(30, 41, 59, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            border: 1px solid #334155;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .logo-title {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .alert {
+            background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .alert h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .alert p {
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.9;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 2rem;
+            background: white;
+            color: #0f172a;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: transform 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #2563eb;
+        }
+
+        .card-content {
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #2563eb;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .steps {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 1rem;
+            padding: 2rem;
+        }
+
+        .step {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #334155;
+        }
+
+        .step:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-content h3 {
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-content p {
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+
+        .code {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            color: #10b981;
+            overflow-x: auto;
+        }
+
+        .preview-note {
+            background: rgba(37, 99, 235, 0.1);
+            border: 1px solid #2563eb;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-title">✈️ AirlineML Dashboard</div>
+            </div>
+            <p style="color: #94a3b8;">Dynamic Pricing & Demand Forecasting System</p>
+        </div>
+
+        <div class="alert">
+            <h2>⚠️ Node.js Installation Required</h2>
+            <p>To run the full interactive React dashboard, you need to install Node.js first.</p>
+            <a href="https://nodejs.org/" class="btn" target="_blank">Download Node.js v24 LTS</a>
+        </div>
+
+        <h2 style="font-size: 2rem; margin-bottom: 1.5rem;">📊 Dashboard Features (Preview)</h2>
+
+        <div class="grid">
+            <div class="card">
+                <div class="stat-value">$2.4M</div>
+                <div class="stat-label">Total Revenue</div>
+            </div>
+            <div class="card">
+                <div class="stat-value">45.2K</div>
+                <div class="stat-label">Active Users</div>
+            </div>
+            <div class="card">
+                <div class="stat-value">12,543</div>
+                <div class="stat-label">Flight Searches</div>
+            </div>
+            <div class="card">
+                <div class="stat-value">87.5%</div>
+                <div class="stat-label">Model Accuracy</div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <div class="card-title">💰 Price Prediction</div>
+                <div class="card-content">
+                    AI-powered flight price forecasting with confidence intervals, price factors analysis, and smart
+                    recommendations.
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">📈 Demand Forecasting</div>
+                <div class="card-content">
+                    Predict booking volumes and search patterns using advanced machine learning algorithms.
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">📊 Market Analytics</div>
+                <div class="card-content">
+                    Analyze market trends, popular routes, peak travel times, and emerging destinations.
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">🚨 Anomaly Detection</div>
+                <div class="card-content">
+                    Real-time detection of unusual price spikes and market disruptions using Isolation Forest.
+                </div>
+            </div>
+        </div>
+
+        <h2 style="font-size: 2rem; margin: 2rem 0 1.5rem;">🚀 How to Run the Full Dashboard</h2>
+
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Install Node.js v24 LTS</h3>
+                    <p>Download from <a href="https://nodejs.org/" style="color: #2563eb;">nodejs.org</a> and run the
+                        installer. Make sure to check "Add to PATH" during installation.</p>
+                    <div class="code">node-v24.11.1-x64.msi</div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Verify Installation</h3>
+                    <p>Open a NEW PowerShell window and check:</p>
+                    <div class="code">node --version<br>npm --version</div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Install Dashboard Dependencies</h3>
+                    <p>Navigate to the frontend folder and install packages:</p>
+                    <div class="code">cd c:\Users\rattu\Downloads\L-10\frontend<br>npm install</div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Start the Dashboard</h3>
+                    <p>Launch the development server:</p>
+                    <div class="code">npm start</div>
+                    <p style="margin-top: 1rem;">The dashboard will automatically open at <strong
+                            style="color: #2563eb;">http://localhost:3000</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="preview-note">
+            <h3 style="margin-bottom: 1rem;">📝 This is a Static Preview</h3>
+            <p>The full interactive dashboard includes:</p>
+            <p>✅ Real-time data updates • ✅ Interactive charts • ✅ AI predictions • ✅ Form submissions</p>
+            <p style="margin-top: 1rem; font-weight: 600;">Install Node.js to experience the complete dashboard!</p>
+        </div>
+    </div>
+</body>
+
+</html>

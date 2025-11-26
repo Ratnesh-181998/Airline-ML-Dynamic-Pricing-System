@@ -1,0 +1,141 @@
+.market-analytics {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-lg);
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
+}
+
+.destinations-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.destination-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base);
+}
+
+.destination-item:hover {
+    background: var(--color-surface-hover);
+    transform: translateX(4px);
+}
+
+.destination-rank {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    color: var(--color-text-tertiary);
+    width: 40px;
+}
+
+.destination-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.destination-icon {
+    color: var(--color-primary);
+}
+
+.destination-name {
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.destination-searches {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-tertiary);
+    margin: 0;
+}
+
+.insights-grid {
+    gap: var(--spacing-lg);
+}
+
+.insight-card {
+    background: var(--color-bg-secondary);
+    padding: var(--spacing-xl);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    transition: all var(--transition-base);
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Date Picker Styles (Reused) */
+.date-picker-container {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+    background: var(--color-surface);
+    padding: 4px var(--spacing-md);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+}
+
+.date-input-group {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.date-input-group label {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.date-input {
+    background: transparent;
+    border: none;
+    color: var(--color-text-primary);
+    font-family: inherit;
+    font-size: var(--font-size-sm);
+    padding: 4px;
+    cursor: pointer;
+    outline: none;
+}
+
+.date-input::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+.date-input::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+/* Toast Styles */
+.insight-toast h4 {
+    margin: 0 0 4px 0;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.insight-toast p {
+    margin: 0;
+    font-size: 14px;
+    color: #64748b;
+}

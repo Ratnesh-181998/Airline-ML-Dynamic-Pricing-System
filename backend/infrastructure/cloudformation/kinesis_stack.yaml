@@ -1,0 +1,208 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFormation template for Airline Ticket Shopping System - Kinesis Resources'
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: airline-ticket-shopping
+    Description: Project name for resource naming
+  
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - staging
+      - prod
+    Description: Environment name
+
+Resources:
+  # ============================================================================
+  # Kinesis Data Stream
+  # ============================================================================
+  FlightSearchesStream:
+    Type: AWS::Kinesis::Stream
+    Properties:
+      Name: !Sub '${ProjectName}-flight-searches-${Environment}'
+      ShardCount: 2
+      RetentionPeriodHours: 24
+      StreamModeDetails:
+        StreamMode: PROVISIONED
+      Tags:
+        - Key: Project
+          Value: !Ref ProjectName
+        - Key: Environment
+          Value: !Ref Environment
+
+  # ============================================================================
+  # Kinesis Data Firehose Delivery Stream
+  # ============================================================================
+  FlightSearchesFirehose:
+    Type: AWS::KinesisFirehose::DeliveryStream
+    Properties:
+      DeliveryStreamName: !Sub '${ProjectName}-flight-searches-firehose-${Environment}'
+      DeliveryStreamType: KinesisStreamAsSource
+      KinesisStreamSourceConfiguration:
+        KinesisStreamARN: !GetAtt FlightSearchesStream.Arn
+        RoleARN: !GetAtt FirehoseRole.Arn
+      ExtendedS3DestinationConfiguration:
+        BucketARN: !Sub 'arn:aws:s3:::${DataLakeBucket}'
+        Prefix: 'raw/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/hour=!{timestamp:HH}/'
+        ErrorOutputPrefix: 'errors/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/hour=!{timestamp:HH}/'
+        RoleARN: !GetAtt FirehoseRole.Arn
+        BufferingHints:
+          SizeInMBs: 5
+          IntervalInSeconds: 60
+        CompressionFormat: GZIP
+        CloudWatchLoggingOptions:
+          Enabled: true
+          LogGroupName: !Ref FirehoseLogGroup
+          LogStreamName: S3Delivery
+      Tags:
+        - Key: Project
+          Value: !Ref ProjectName
+        - Key: Environment
+          Value: !Ref Environment
+
+  # ============================================================================
+  # S3 Data Lake Bucket
+  # ============================================================================
+  DataLakeBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${ProjectName}-data-lake-${Environment}-${AWS::AccountId}'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: MoveRawDataToGlacier
+            Status: Enabled
+            Prefix: raw/
+            Transitions:
+              - TransitionInDays: 90
+                StorageClass: GLACIER
+          - Id: DeleteOldRawData
+            Status: Enabled
+            Prefix: raw/
+            ExpirationInDays: 365
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: Project
+          Value: !Ref ProjectName
+        - Key: Environment
+          Value: !Ref Environment
+
+  # ============================================================================
+  # IAM Role for Kinesis Firehose
+  # ============================================================================
+  FirehoseRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ProjectName}-firehose-role-${Environment}'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: firehose.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Policies:
+        - PolicyName: FirehoseS3Access
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:PutObject'
+                  - 's3:GetObject'
+                  - 's3:ListBucket'
+                Resource:
+                  - !GetAtt DataLakeBucket.Arn
+                  - !Sub '${DataLakeBucket.Arn}/*'
+        - PolicyName: FirehoseKinesisAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'kinesis:DescribeStream'
+                  - 'kinesis:GetShardIterator'
+                  - 'kinesis:GetRecords'
+                  - 'kinesis:ListShards'
+                Resource: !GetAtt FlightSearchesStream.Arn
+        - PolicyName: FirehoseCloudWatchAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'logs:PutLogEvents'
+                  - 'logs:CreateLogStream'
+                Resource: !GetAtt FirehoseLogGroup.Arn
+
+  # ============================================================================
+  # CloudWatch Log Group for Firehose
+  # ============================================================================
+  FirehoseLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/kinesisfirehose/${ProjectName}-${Environment}'
+      RetentionInDays: 7
+
+  # ============================================================================
+  # CloudWatch Alarms
+  # ============================================================================
+  KinesisIteratorAgeAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ProjectName}-kinesis-iterator-age-${Environment}'
+      AlarmDescription: Alert when Kinesis iterator age exceeds 1 hour
+      MetricName: GetRecords.IteratorAgeMilliseconds
+      Namespace: AWS/Kinesis
+      Statistic: Maximum
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 3600000  # 1 hour in milliseconds
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: StreamName
+          Value: !Ref FlightSearchesStream
+
+Outputs:
+  KinesisStreamName:
+    Description: Name of the Kinesis Data Stream
+    Value: !Ref FlightSearchesStream
+    Export:
+      Name: !Sub '${ProjectName}-kinesis-stream-${Environment}'
+
+  KinesisStreamArn:
+    Description: ARN of the Kinesis Data Stream
+    Value: !GetAtt FlightSearchesStream.Arn
+    Export:
+      Name: !Sub '${ProjectName}-kinesis-stream-arn-${Environment}'
+
+  FirehoseDeliveryStreamName:
+    Description: Name of the Kinesis Firehose Delivery Stream
+    Value: !Ref FlightSearchesFirehose
+    Export:
+      Name: !Sub '${ProjectName}-firehose-stream-${Environment}'
+
+  DataLakeBucketName:
+    Description: Name of the S3 Data Lake Bucket
+    Value: !Ref DataLakeBucket
+    Export:
+      Name: !Sub '${ProjectName}-data-lake-bucket-${Environment}'
+
+  DataLakeBucketArn:
+    Description: ARN of the S3 Data Lake Bucket
+    Value: !GetAtt DataLakeBucket.Arn
+    Export:
+      Name: !Sub '${ProjectName}-data-lake-bucket-arn-${Environment}'

@@ -1,0 +1,32 @@
+AWS Services and Data Processing in Airline Industry
+Introduction to GenAI
+Generative AI was briefly introduced as a "black box," highlighting the need to understand foundational concepts before diving deeper into practical applications【4:4†transcript.txt】.
+Key AWS Services and Concepts
+Amazon S3: Used as a primary storage solution for data. It's often mentioned as a "data point" in architecture and is integral to many AWS workflows【4:4†transcript.txt】.
+
+AWS Lambda: A serverless compute service triggering code in response to events such as data updates in Amazon S3. It automates transformations without provisioning servers. Lambda functions scale automatically, handling heavy workloads without manual intervention【4:12†transcript.txt】【4:14†transcript.txt】.
+
+Amazon Kinesis: Discussed primarily for real-time data ingestion and processing, Kinesis is touted for its serverless nature and scalability. It supports large-scale data streaming activities like ingestion from airline APIs【4:7†transcript.txt】【4:9†transcript.txt】.
+
+AWS Glue: A critical component for data transformation processes, AWS Glue is described as handling ETL (Extract, Transform, Load) processes efficiently. It includes data cataloging, which is essential for making datasets discoverable across various AWS services【4:6†transcript.txt】【4:13†transcript.txt】.
+
+Amazon SageMaker: Utilized for training, evaluating, and deploying machine learning models. It supports model deployment for real-time inference and batch processing, offering different machine learning algorithms like XGBoost【4:1†handwritten.pdf】【4:2†handwritten.pdf】.
+
+Data Processing and Architecture for Airlines
+The session emphasized the use case of dynamic pricing and demand forecasting in airline ticket shopping, necessitating real-time data and processing【4:11†transcript.txt】.
+
+Data Transformation: The class tackled the transformation of semi-structured data formats like JSON into structured formats for better accessibility and processing. AWS services like Lambda and Glue assist in these transformations【4:6†transcript.txt】【4:16†transcript.txt】.
+
+Real-time Data Use Case
+Dynamic Pricing Optimization: Explained as adjusting prices based on demand patterns. Various factors include competitor pricing and user search behaviors, where airlines adjust their pricing strategies to optimize revenue【4:19†transcript.txt】.
+
+Demand Forecasting: Besides influencing flight prices, demand forecasting is also used for logistical management like airport scheduling and capacity planning【4:19†transcript.txt】.
+
+Machine Learning in Demand Forecasting: Using SageMaker for building and deploying predictive models that aid in forecasting and personalized recommendations【4:2†handwritten.pdf】.
+
+Serverless and Scalability Discussion
+Serverless services like AWS Lambda and Amazon Kinesis emphasize scalability and flexibility, allowing AWS to manage infrastructure needs dynamically as data scales【4:9†transcript.txt】【4:8†transcript.txt】.
+Bayesian Optimization
+Bayesian Optimization was mentioned as a method for hyperparameter tuning in machine learning models, offering efficiency over grid and random search methods by targeting the most promising areas of the parameter space【4:4†transcript.txt】.
+Conclusion
+The class provided a comprehensive overview of AWS services and their application in processing real-time data for better decision-making in the airline industry, focusing on scalability and optimized pricing strategies.

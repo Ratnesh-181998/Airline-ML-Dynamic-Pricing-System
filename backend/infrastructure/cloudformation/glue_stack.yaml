@@ -1,0 +1,250 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFormation template for Airline Ticket Shopping System - AWS Glue Resources'
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: airline-ticket-shopping
+    Description: Project name for resource naming
+  
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - staging
+      - prod
+    Description: Environment name
+  
+  DataLakeBucket:
+    Type: String
+    Description: Name of the S3 Data Lake bucket
+
+Resources:
+  # ============================================================================
+  # Glue Database for Raw Data
+  # ============================================================================
+  RawDataDatabase:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseInput:
+        Name: !Sub '${ProjectName}_raw_db_${Environment}'
+        Description: Database for raw airline ticket shopping data
+
+  # ============================================================================
+  # Glue Database for Curated Data
+  # ============================================================================
+  CuratedDataDatabase:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseInput:
+        Name: !Sub '${ProjectName}_curated_db_${Environment}'
+        Description: Database for curated airline ticket shopping data
+
+  # ============================================================================
+  # Glue Crawler for Raw Data
+  # ============================================================================
+  RawDataCrawler:
+    Type: AWS::Glue::Crawler
+    Properties:
+      Name: !Sub '${ProjectName}-raw-data-crawler-${Environment}'
+      Role: !GetAtt GlueServiceRole.Arn
+      DatabaseName: !Ref RawDataDatabase
+      Targets:
+        S3Targets:
+          - Path: !Sub 's3://${DataLakeBucket}/raw/'
+      Schedule:
+        ScheduleExpression: 'cron(0 * * * ? *)'  # Run every hour
+      SchemaChangePolicy:
+        UpdateBehavior: UPDATE_IN_DATABASE
+        DeleteBehavior: LOG
+      Configuration: |
+        {
+          "Version": 1.0,
+          "CrawlerOutput": {
+            "Partitions": {
+              "AddOrUpdateBehavior": "InheritFromTable"
+            }
+          }
+        }
+
+  # ============================================================================
+  # Glue Crawler for Curated Data
+  # ============================================================================
+  CuratedDataCrawler:
+    Type: AWS::Glue::Crawler
+    Properties:
+      Name: !Sub '${ProjectName}-curated-data-crawler-${Environment}'
+      Role: !GetAtt GlueServiceRole.Arn
+      DatabaseName: !Ref CuratedDataDatabase
+      Targets:
+        S3Targets:
+          - Path: !Sub 's3://${DataLakeBucket}/curated/flight_searches/'
+      Schedule:
+        ScheduleExpression: 'cron(0 */2 * * ? *)'  # Run every 2 hours
+      SchemaChangePolicy:
+        UpdateBehavior: UPDATE_IN_DATABASE
+        DeleteBehavior: LOG
+
+  # ============================================================================
+  # Glue ETL Job
+  # ============================================================================
+  GlueETLJob:
+    Type: AWS::Glue::Job
+    Properties:
+      Name: !Sub '${ProjectName}-data-etl-${Environment}'
+      Role: !GetAtt GlueServiceRole.Arn
+      Command:
+        Name: glueetl
+        ScriptLocation: !Sub 's3://${DataLakeBucket}/scripts/glue_etl_job.py'
+        PythonVersion: '3'
+      DefaultArguments:
+        '--job-language': 'python'
+        '--enable-metrics': 'true'
+        '--enable-continuous-cloudwatch-log': 'true'
+        '--enable-spark-ui': 'true'
+        '--spark-event-logs-path': !Sub 's3://${DataLakeBucket}/spark-logs/'
+        '--TempDir': !Sub 's3://${DataLakeBucket}/temp/'
+      MaxRetries: 1
+      Timeout: 60  # 60 minutes
+      GlueVersion: '4.0'
+      MaxCapacity: 10  # DPU (Data Processing Units)
+      Tags:
+        Project: !Ref ProjectName
+        Environment: !Ref Environment
+
+  # ============================================================================
+  # IAM Role for Glue
+  # ============================================================================
+  GlueServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ProjectName}-glue-service-role-${Environment}'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: glue.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole'
+      Policies:
+        - PolicyName: GlueS3Access
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:GetObject'
+                  - 's3:PutObject'
+                  - 's3:DeleteObject'
+                  - 's3:ListBucket'
+                Resource:
+                  - !Sub 'arn:aws:s3:::${DataLakeBucket}'
+                  - !Sub 'arn:aws:s3:::${DataLakeBucket}/*'
+        - PolicyName: GlueCloudWatchAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                Resource: 'arn:aws:logs:*:*:*'
+
+  # ============================================================================
+  # Lambda Function for Triggering Glue Job
+  # ============================================================================
+  GlueTriggerLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub '${ProjectName}-glue-trigger-${Environment}'
+      Runtime: python3.9
+      Handler: lambda_trigger.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref DataLakeBucket
+        S3Key: 'lambda/lambda_trigger.zip'
+      Environment:
+        Variables:
+          GLUE_JOB_NAME: !Ref GlueETLJob
+          OUTPUT_BUCKET: !Ref DataLakeBucket
+      Timeout: 60
+      MemorySize: 512
+
+  # ============================================================================
+  # S3 Event Notification to Lambda
+  # ============================================================================
+  S3InvokeLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref GlueTriggerLambda
+      Action: 'lambda:InvokeFunction'
+      Principal: s3.amazonaws.com
+      SourceArn: !Sub 'arn:aws:s3:::${DataLakeBucket}'
+
+  # ============================================================================
+  # IAM Role for Lambda
+  # ============================================================================
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ProjectName}-lambda-execution-role-${Environment}'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+      Policies:
+        - PolicyName: LambdaGlueAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'glue:StartJobRun'
+                  - 'glue:GetJobRun'
+                  - 'glue:GetJobRuns'
+                Resource: !Sub 'arn:aws:glue:${AWS::Region}:${AWS::AccountId}:job/${GlueETLJob}'
+        - PolicyName: LambdaS3Access
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:GetObject'
+                  - 's3:HeadObject'
+                Resource: !Sub 'arn:aws:s3:::${DataLakeBucket}/*'
+
+Outputs:
+  RawDatabaseName:
+    Description: Name of the Glue Database for raw data
+    Value: !Ref RawDataDatabase
+    Export:
+      Name: !Sub '${ProjectName}-raw-database-${Environment}'
+
+  CuratedDatabaseName:
+    Description: Name of the Glue Database for curated data
+    Value: !Ref CuratedDataDatabase
+    Export:
+      Name: !Sub '${ProjectName}-curated-database-${Environment}'
+
+  GlueETLJobName:
+    Description: Name of the Glue ETL Job
+    Value: !Ref GlueETLJob
+    Export:
+      Name: !Sub '${ProjectName}-glue-etl-job-${Environment}'
+
+  GlueTriggerLambdaArn:
+    Description: ARN of the Lambda function that triggers Glue jobs
+    Value: !GetAtt GlueTriggerLambda.Arn
+    Export:
+      Name: !Sub '${ProjectName}-glue-trigger-lambda-arn-${Environment}'
